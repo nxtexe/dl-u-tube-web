@@ -1,0 +1,19 @@
+.dark-mode .screen > .home {
+    background-color: var(--secondary-main);
+    overflow: hidden;
+}
+.home .banner {
+    display: flex;
+    gap: 13px;
+    grid-column: span 4;
+    grid-row: 1;
+    color: var(--secondary-main);
+    position: static;
+    z-index: 1;
+}
+.home .bg-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+}

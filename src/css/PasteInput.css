@@ -1,0 +1,55 @@
+.paste-input {
+    width: 100%;
+    height: 64px;
+    display: flex;
+    border-bottom: 0.5px solid rgba(138, 138, 138, 0.5);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    transition: border 1s ease;
+}
+.paste-input .input {
+    flex: 1;
+}
+.paste-input .input input {
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: #D9CFCF;
+    padding: 15px;
+    padding-right: 0;
+    font-size: 16px;
+    font-weight: var(--oswald-medium);
+    letter-spacing: calc(16px * (1.5 / 100));
+}
+.paste-input .input input::placeholder {
+    color: #D9CFCF;
+}
+/* .paste-input .input::after {
+    transform: translate(-5px, 15px);
+    height: 34px;
+    content: "a";
+    color: transparent;
+    grid-column: 2;
+    grid-row: span 1;
+    top: 15px;
+    z-index: 1;
+    pointer-events: none;
+    background-image: linear-gradient(
+        to right,
+        transparent,
+        rgba(138, 138, 138, 0.28) 90%
+    );
+} */
+.paste-input .adornment {
+    padding: 15px;
+    padding-left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+.paste-input .adornment .MuiCircularProgress-root {
+    width: 24px!important;
+    height: 24px!important;
+}

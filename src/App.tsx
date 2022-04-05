@@ -1,25 +1,37 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {ThemeProvider} from '@mui/material/styles';
+import {darkTheme} from './Components';
+import {Home, Settings, History} from './Screens';
+import { Router, Stack } from 'react-motion-router';
+import { getPWADisplayMode, iOS } from './common/utils';
+import './css/App.css';
+import Toast from './Components/Toast';
+
+const isPWA = getPWADisplayMode() === 'standalone';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={darkTheme}>
+      <div className="app dark-mode">
+        <Toast />
+        <Router config={{
+          defaultRoute: '/',
+          disableDiscovery: !isPWA,
+          disableBrowserRouting: isPWA && iOS(),
+          animation: {
+            in: {
+              type: 'fade',
+              duration: 350
+            }
+          }
+        }}>
+          <Stack.Screen path={'/'} component={Home} />
+          <Stack.Screen path={'/settings'} component={Settings} />
+          <Stack.Screen path={'/history'} component={History} />
+        </Router>
+        
+      </div>
+    </ThemeProvider>
   );
 }
 

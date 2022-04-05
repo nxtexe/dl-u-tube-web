@@ -1,0 +1,28 @@
+.toast {
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.toast-paper {
+  background-color: rgba(138, 138, 138, 0.28);
+  backdrop-filter: blur(15px);
+  max-width: fit-content;
+  border-radius: 25px !important;
+  max-height: 50px;
+  min-width: 50px;
+  position: fixed;
+  bottom: 15px;
+}
+.toast-body-text {
+  white-space: nowrap;
+}
+.toast-body {
+  padding: 15px;
+  margin-bottom: 15px;
+  text-align: center;
+  max-width: fit-content;
+}

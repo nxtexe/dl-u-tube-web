@@ -1,0 +1,76 @@
+.nav {
+  width: 100vw;
+  height: 64px;
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: repeat(4, 1fr);
+}
+.nav > * {
+  grid-row: 1;
+}
+.nav > .bg {
+  height: 64px;
+  filter: blur(25px);
+  grid-column: span 4 / 5;
+  grid-row: 1;
+  touch-action: none;
+  pointer-events: none;
+}
+.nav-wrap .fab {
+  grid-column: span 4 / 5;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  bottom: 0;
+  left: 50%;
+  z-index: 11;
+}
+.nav-wrap .fab button {
+  grid-column: 1;
+  grid-row: 1;
+  width: 64px;
+  height: 64px;
+}
+.nav .home {
+  grid-column: 1;
+}
+.nav .settings {
+  grid-column: 4;
+}
+.nav .home,
+.nav .settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+}
+.nav-wrap .fab .bg {
+  width: 64px;
+  height: 64px;
+  grid-column: 1;
+  grid-row: 1;
+  z-index: 0;
+  border-radius: 50%;
+  background-color: var(--primary-main);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+.nav-wrap .fab svg,
+.nav .home,
+.nav .settings {
+  z-index: 1;
+}
+.nav .active,
+.nav .active {
+  color: var(--primary-main);
+}
+.nav .settings.active button,
+.nav .home.active button {
+  color: var(--primary-main) !important;
+}

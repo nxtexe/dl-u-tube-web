@@ -1,0 +1,50 @@
+.history {
+  overflow: hidden;
+  background-color: var(--secondary-main);
+}
+.history .nav-wrap {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+.history .nav-wrap .fab .bg {
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  transform: none;
+  border-radius: 0;
+}
+.history .nav-wrap .fab {
+  width: 100vw;
+  height: 100vh;
+  margin-bottom: 0;
+  left: 0;
+  position: absolute;
+  transform: none!important;
+  z-index: 9;
+}
+.history .nav-wrap .fab button {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.history .banner {
+  display: flex;
+  gap: 13px;
+  grid-column: span 4;
+  grid-row: 1;
+  color: var(--secondary-main);
+  position: static;
+  z-index: 1;
+}
+.history .nav-wrap .home,
+.history .nav-wrap .settings {
+  display: none;
+}

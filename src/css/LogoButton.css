@@ -1,0 +1,30 @@
+.logo-button {
+    display: grid;
+    width: 64px;
+    height: 44px;
+}
+.logo-button .bg,
+.logo-button .play {
+    grid-column: 1;
+    grid-row: 1;
+    width: 64px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.logo-button .play {
+    position: static;
+    z-index: 1;
+}
+.logo-button .bg svg {
+    width: 64px;
+    height: auto;
+}
+.logo-button.neumorphic .bg svg {
+    filter: drop-shadow(-1px -1px 5px rgba(0, 0, 0, 0.5)) drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.5));
+}
+.logo-button .play svg {
+    width: 21.95px;
+    height: 19px;
+}

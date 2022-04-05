@@ -1,0 +1,28 @@
+.dark-mode .screen > .settings {
+  overflow: hidden;
+  background-color: var(--secondary-main);
+}
+.settings .nav-wrap .fab > * {
+  visibility: hidden !important;
+}
+.settings .bg-element {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vh;
+  height: 100vw;
+  /* transform: translate(-15%, 0%) rotate(156deg); */
+}
+.settings .banner {
+  display: flex;
+  gap: 13px;
+  grid-column: span 4;
+  grid-row: 1;
+  color: var(--secondary-main);
+  position: static;
+  z-index: 1;
+  color: white;
+}
+.screen {
+    overflow: hidden!important;
+}

@@ -1,0 +1,32 @@
+.search-modal {
+    grid-column: span 4 / 5;
+    height: 64px;
+    grid-row: 4;
+    background-color: rgba(138, 138, 138, 0.28);
+    backdrop-filter: blur(15px);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: hidden;
+    transition: height 1s ease;
+    position: relative;
+}
+.search-modal.results {
+    height: 213px;
+}
+.search-modal.results.expand {
+    height: 383px;
+}
+.search-modal .options {
+    width: 100%;
+    justify-content: space-between;
+    position: absolute;
+    bottom: 0;
+    padding: 10px;
+    padding-bottom: 0px;
+    display: none;
+    z-index: 0;
+}
+.search-modal.results .options {
+    display: flex;
+}
