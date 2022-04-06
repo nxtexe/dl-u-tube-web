@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -12,9 +12,18 @@ interface NavProps {
 
 export function Nav(props: NavProps) {
     const [currentPath, setCurrentPath] = useState(props.navigation.location.pathname);
+    const [mounted, setMounted] = useState(false);
+
     window.addEventListener('page-animation-end', () => {
+        if (!mounted) return;
         setCurrentPath(props.navigation.location.pathname);
     }, {once: true});
+
+    useEffect(() => {
+        setMounted(true);
+
+        return () => setMounted(false);
+    }, []);
     const safeAreaPadding = `${window.outerHeight - window.innerHeight}px`;
     const isHome = currentPath === '/';
     const isSettings = currentPath === '/settings';

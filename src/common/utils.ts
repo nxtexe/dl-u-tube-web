@@ -26,13 +26,18 @@ export function clamp(num: number, min: number, max: number) {
 
 export function getClipboardText(): Promise<string> {
   return new Promise((resolve, reject) => {
-    navigator.clipboard.readText()
-    .then(clipText => {
-        resolve(clipText);
-    })
-    .catch((e) => {
-      reject(e);
-    })
+    if ('clipboard' in navigator) {
+      navigator.clipboard.readText()
+      .then(clipText => {
+          resolve(clipText);
+      })
+      .catch((e) => {
+        reject(e);
+      }); 
+    } else {
+      reject("Clipboard API not supported");
+    }
+    
   });
 }
 
@@ -132,13 +137,64 @@ export function getFileRaw(blobOrFile: File | Blob): Promise<ArrayBuffer> {
   });
 }
 
+export function convertToPNG(fileOrBlob: File | Blob): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = document.createElement('img');
+    const objectURL = URL.createObjectURL(fileOrBlob);
+    img.src = objectURL;
+    img.style.display = 'none';
+    img.style.aspectRatio = '1';
+    img.onload = () => {
+      const max = Math.max(img.naturalWidth, img.naturalHeight);
+      const width = max;
+      const height = max;
+
+      const canvas = document.createElement('canvas');
+      canvas.style.display = 'none';
+      canvas.width = width;
+      canvas.height = height;
+      document.body.appendChild(canvas);
+      const context = canvas.getContext('2d');
+
+      const originalRatio = {
+        width: canvas.width / img.naturalWidth,
+        height: canvas.height / img.naturalHeight
+      }
+      // calculate x, y, width and height for canvas image cover
+      let coverRatio = Math.max(originalRatio.width, originalRatio.height);
+      let newWidth = img.naturalWidth * coverRatio;
+      let newHeight = img.naturalHeight * coverRatio;
+      let x = (canvas.width / 2) - (img.naturalWidth / 2) * coverRatio;
+      let y = (canvas.height / 2) - (img.naturalHeight / 2) * coverRatio;
+
+      if (context) {
+        context.drawImage(img, x, y, newWidth, newHeight);
+        URL.revokeObjectURL(objectURL);
+        canvas.toBlob(
+          (blob: Blob | null) => blob ? resolve(blob) : reject("Blob is null"),
+          'image/png', '1'
+        );
+        
+        document.body.removeChild(canvas);
+        document.body.removeChild(img);
+        return;
+      }
+      reject(new Error("getContext returned null"));
+    }
+    document.body.appendChild(img);
+  });
+}
+
 export function fetchImage(url: string): Promise<Blob> {
   return new Promise((resolve, reject) => {
     fetch(`/api/proxy/image?url=${encodeURIComponent(url)}`)
     .then(response => response.blob())
-    .then(blob => {
-      console.log(blob);
-      resolve(blob);
+    .then(async blob => {
+      if (!blob.type.includes('png')) {
+        resolve(await convertToPNG(blob));
+      } else {
+        resolve(blob);
+      }
     })
     .catch(e => {
       console.error(e);

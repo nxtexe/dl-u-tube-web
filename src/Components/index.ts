@@ -9,3 +9,4 @@ export * from './InfoEditor';
 export * from './VideoInfo';
 export * from './Dropdown';
 export * from './Ticker';
+export * from './DownloadList';

@@ -48,3 +48,14 @@
 .history .nav-wrap .settings {
   display: none;
 }
+.history .tab-panel {
+  z-index: 2;
+  grid-column: span 4;
+  grid-row: span 10 / 13;
+}
+.history button.MuiTab-root {
+  color: white;
+}
+.history button.MuiTab-root.Mui-selected {
+  color: black;
+}

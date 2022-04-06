@@ -13,9 +13,10 @@ import Dropdown from './Dropdown';
 import moment from 'moment';
 import { fetchImage, formatFromDuration, getFileRaw } from '../common/utils';
 import {fileSave} from 'browser-fs-access';
-import {converter, downloader} from '../Workers';
-import convert from '../common/video-to-audio';
+import {downloader} from '../Workers';
+import Converter from '../common/converter';
 import ID3Writer from 'browser-id3-writer';
+import DownloadHistory from '../common/downloadhistory';
 
 interface SearchModalState {
     result?: VideoResult;
@@ -117,6 +118,18 @@ export class SearchModal extends React.Component<any, SearchModalState> {
 
             if (this.state.fileType === "mp4") {
                 try {
+                    const videoData = this.state.result;
+                    // save download locally
+                    DownloadHistory.instance.insertOne({
+                        download: {
+                            title: videoData.title,
+                            coverArt: videoData.coverArtFile,
+                            duration: videoData.duration,
+                            url: this.state.url,
+                            author: videoData.author,
+                            type: 'mp4'
+                        }
+                    });
                     fileSave(blob, {
                         fileName: this.state.result.title + '.mp4',
                         mimeTypes: ['video/mp4'],
@@ -131,30 +144,39 @@ export class SearchModal extends React.Component<any, SearchModalState> {
                     const name = audioData.title;
                     
                     const videoBuffer = await getFileRaw(blob);
-                    converter.postMessage({videoBuffer, name}, [videoBuffer]);
-                    converter.onmessage = async (event: MessageEvent<ArrayBuffer>) => {
-                        const mp3Buffer = event.data;
+                    const mp3Buffer = await Converter.instance.mp4ToMp3(videoBuffer, name);
+                    const coverArtBuffer = await getFileRaw(audioData.coverArtFile);
+                    const writer = new ID3Writer(mp3Buffer);
+                    // TODO WOAS, WORS, WOAF, TPE2, TALB, TYEAR, TDAT, COMM
+                    writer.setFrame('TIT2', audioData.title)
+                    .setFrame('TPE1', audioData.author.split(','))
+                    .setFrame('TLEN', audioData.duration)
+                    .setFrame('APIC', {
+                        type: 3,
+                        data: coverArtBuffer,
+                        description: 'The Melodic Blue',
+                        useUnicodeEncoding: false
 
-                        const coverArtBuffer = await getFileRaw(audioData.coverArtFile);
-                        const writer = new ID3Writer(mp3Buffer);
-                        writer.setFrame('TIT2', audioData.title)
-                        .setFrame('TPE1', audioData.author.split(','))
-                        .setFrame('TLEN', audioData.duration)
-                        .setFrame('APIC', {
-                            type: 3,
-                            data: coverArtBuffer,
-                            description: 'The Melodic Blue',
-                            useUnicodeEncoding: false
+                    });
+                    writer.addTag();
 
-                        });
-                        writer.addTag();
+                    // save download locally
+                    DownloadHistory.instance.insertOne({
+                        download: {
+                            title: name,
+                            coverArt: audioData.coverArtFile,
+                            duration: audioData.duration,
+                            url: this.state.url,
+                            author: audioData.author,
+                            type: 'mp3'
+                        }
+                    });
 
-                        fileSave(writer.getBlob(), {
-                            fileName: name + '.mp3',
-                            mimeTypes: [blob.type],
-                            extensions: ['.mp3']
-                        });
-                    }
+                    fileSave(writer.getBlob(), {
+                        fileName: name + '.mp3',
+                        mimeTypes: [blob.type],
+                        extensions: ['.mp3']
+                    });
                     
                 } catch(e) {
                     console.error(e);

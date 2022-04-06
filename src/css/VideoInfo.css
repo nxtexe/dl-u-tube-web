@@ -53,21 +53,3 @@
   max-width: 75%;
   overflow: hidden;
 }
-.ticker {
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  animation-name: title-ticker;
-  animation-duration: 12s;
-  padding-right: 100%;
-  padding-left: 100%;
-  box-sizing: content-box;
-}
-@keyframes title-ticker {
-  0% {
-    transform: translate3d(0%, 0, 0);
-    visibility: visible;
-  }
-  100% {
-    transform: translate3d(-100%, 0, 0);
-  }
-}
