@@ -3,6 +3,13 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+declare global {
+  interface Window {
+    GLOBAL_WORKER_POOL_SIZE: number;
+  }
+}
+
+window.GLOBAL_WORKER_POOL_SIZE = 0;
 
 ReactDOM.render(
   <React.StrictMode>

@@ -4,10 +4,12 @@ import {v4 as uuid4} from 'uuid';
 export interface Download {
     title: string;
     coverArt: File | Blob;
+    data: ArrayBuffer | null;
     duration: string;
     author: string;
     url: string;
     type: "mp4" | "mp3";
+    converted?: boolean;
 }
 
 interface Entry {
@@ -59,19 +61,46 @@ export default class DownloadHistory {
         return await this.forage.getItem(id);
     }
 
-    async insert(entries: Entry[]) {
-        for (let i = 0; i < entries.length; i++) {
-            let {id, download} = entries[i];
-            if (!id) {
-                id = uuid4();
+    insert(entries: Entry[]) {
+        return new Promise(async (resolve, reject) => {
+            for (let i = 0; i < entries.length; i++) {
+                let {id, download} = entries[i];
+                if (!id) {
+                    id = uuid4();
+                } else {
+                    const entry = await this.forage.getItem(id);
+                    if (entry) reject("Duplicate ID");
+                }
+                await this.forage.setItem<Download>(id, download);
             }
-            await this.forage.setItem<Download>(id, download);
-        }
+
+            resolve(undefined);
+        });
     }
 
-    async insertOne(entry: {id?: string, download: Download}) {
-        let {id, download} = entry;
-        if (!id) id = uuid4();
-        await this.forage.setItem<Download>(id, download);
+    insertOne(entry: {id?: string, download: Download}) {
+        return new Promise(async (resolve, reject) => {
+            let {id, download} = entry;
+            if (!id) id = uuid4();
+            else {
+                const entry = await this.forage.getItem(id);
+                if (entry) reject("Duplicate ID");
+            }
+            await this.forage.setItem<Download>(id, download);
+            resolve(undefined);
+        });
+    }
+
+    async updateOne(id: string, data: Partial<Download>) {
+        const download = await this.findOne(id);
+        if (download) {
+            await this.forage.setItem<Download>(id, {
+                ...download,
+                ...data
+            });
+
+            return true;
+        }
+        return false;
     }
 }

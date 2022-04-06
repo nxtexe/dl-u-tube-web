@@ -5,14 +5,14 @@ import '../css/Dropdown.css';
 
 interface DropdownProps {
     disabled: boolean;
-    onChange: (value: string) => void;
+    onChange: (value: "mp3" | "mp4") => void;
 }
 
 export function Dropdown(props: DropdownProps) {
     const [value, setValue] = useState('mp3');
     const [open, setOpen] = useState(false);
 
-    const onClick = (value: string) => {
+    const onClick = (value: "mp3" | "mp4") => {
         setValue(value);
         setOpen(false);
         props.onChange(value);

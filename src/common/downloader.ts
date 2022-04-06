@@ -1,11 +1,11 @@
 import {
-    ConverterWorkerResult,
-    ConverterWorkerError,
-    ConverterWorkerProgress
-} from '../Workers/converter.worker';
+    DownloaderWorkerResult,
+    DownloaderWorkerError,
+    DownloaderWorkerProgress
+} from '../Workers/downloader.worker';
 import {v4 as uuid4} from 'uuid';
 
-type ConverterWorkerEvent = ConverterWorkerResult | ConverterWorkerProgress | ConverterWorkerError;
+type DownloaderWorkerEvent = DownloaderWorkerResult | DownloaderWorkerProgress | DownloaderWorkerError;
 
 interface WorkerInstance {
     worker: Worker;
@@ -15,52 +15,53 @@ interface WorkerInstance {
     resourceID: string | null; // underlying resource being downloaded
 }
 
-interface ConversionEnd {
+interface DownloadEnd {
     workerID: string;
 }
 
-type ConversionProgressHandler = ((resourceID?: string, progress?: number)=>void) | null;
+type DownloadProgressHandler = ((resourceID?: string, progress?: number)=>void) | null;
+
 type Resolver = (value: ArrayBuffer | PromiseLike<ArrayBuffer>) => void;
 type Rejecter = (reason?: any) => void;
 
-export default class Converter {
-    private static _instance: Converter | null = null;
-    private _onProgress: ConversionProgressHandler = null;
+export default class Downloader {
+    private static _instance: Downloader | null = null;
     private workerPool: Map<string, WorkerInstance> = new Map();
     private maxWorkers = navigator.hardwareConcurrency || 2;
+    private _onProgress: DownloadProgressHandler = null;
 
     private constructor() {}
 
-    static get instance(): Converter {
-        if (!Converter._instance) {
-            Converter._instance = new Converter();
-        }
-
-        return Converter._instance;
-    }
-
-    set onProgress(_onProgress: ConversionProgressHandler) {
+    set onProgress(_onProgress: DownloadProgressHandler) {
         this._onProgress = _onProgress;
     }
 
-    mp4ToMp3(resourceID: string, videoBuffer: ArrayBuffer, name: string): Promise<ArrayBuffer> {
-        // TODO file validation
+
+    static get instance(): Downloader {
+        if (!Downloader._instance) {
+            Downloader._instance = new Downloader();
+        }
+
+        return Downloader._instance;
+    }
+
+    download(resourceID: string, url: string, contentLength: number): Promise<ArrayBuffer> {
         return new Promise((resolve, reject) => {
             const intervalID = window.setInterval(async () => {
                 const workerInstance = await this.spawnWorker(resourceID);
                 if (!workerInstance.busy) {
-                    workerInstance.worker.postMessage({videoBuffer, name});
+                    workerInstance.worker.postMessage({url, contentLength});
                     workerInstance.busy = true;
-                    workerInstance.worker.onmessage = (event: MessageEvent<ConverterWorkerEvent>) => {
+                    workerInstance.worker.onmessage = (event: MessageEvent<DownloaderWorkerEvent>) => {
                         this.onMessage(event, workerInstance.id, resolve, reject);
                     };
                     clearInterval(intervalID);
                 }
-            }, 3000);
+            }, 3000); // retry in 3s to spawnWorker if worker already busy; this slightly fixes race conditions
         });
     }
 
-    private onMessage(event: MessageEvent<ConverterWorkerEvent>, id: string, resolve: Resolver, reject: Rejecter) {
+    private onMessage(event: MessageEvent<DownloaderWorkerEvent>, id: string, resolve: Resolver, reject: Rejecter, ) {
         const workerInstance = this.workerPool.get(id);
         if (!workerInstance || !workerInstance.resourceID) return;
         switch(event.data.type) {
@@ -76,14 +77,13 @@ export default class Converter {
                     }
                     
                 }, 1000);
-                 
 
-                const downloadend = new CustomEvent<ConversionEnd>('downloadend', {
+                const downloadend = new CustomEvent<DownloadEnd>('downloadend', {
                     detail: {workerID: id}
                 });
                 window.dispatchEvent(downloadend);
 
-                resolve(event.data.audioBuffer);
+                resolve(event.data.videoBuffer);
                 break;
             
             case "error":
@@ -120,7 +120,7 @@ export default class Converter {
                     const _id = uuid4();
                     workerInstance = {
                         id: _id,
-                        worker: new Worker(new URL('../Workers/converter.worker.ts', import.meta.url)),
+                        worker: new Worker(new URL('../Workers/downloader.worker.ts', import.meta.url)),
                         busy: false,
                         timeoutID: 0,
                         resourceID
@@ -132,7 +132,7 @@ export default class Converter {
                     // wait until a worker is available
                     const controller = new AbortController(); 
     
-                    window.addEventListener('conversionend', ((e: CustomEvent<ConversionEnd>) => {
+                    window.addEventListener('downloadend', ((e: CustomEvent<DownloadEnd>) => {
                         const workerInstance = this.workerPool.get(e.detail.workerID);
     
                         if (workerInstance && !workerInstance.busy) {
