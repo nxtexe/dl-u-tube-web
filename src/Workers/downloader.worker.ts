@@ -47,10 +47,10 @@ onmessage = (event: MessageEvent<VideoInfo>) => {
 
                 push();
             }
-        })
+        });
     })
     .then(stream => new Response(stream).arrayBuffer())
-    .then(videoBuffer => postMessage<DownloaderWorkerResult>({videoBuffer, type: "result"}))
+    .then(videoBuffer => postMessage<DownloaderWorkerResult>({videoBuffer, type: "result"}, [videoBuffer]))
     .catch(e => {
         postMessage<DownloaderWorkerError>({error: e, type: "error"});
     });

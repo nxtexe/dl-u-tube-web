@@ -9,7 +9,6 @@ export interface Download {
     author: string;
     url: string;
     type: "mp4" | "mp3";
-    converted?: boolean;
 }
 
 interface Entry {

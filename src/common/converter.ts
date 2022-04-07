@@ -49,7 +49,7 @@ export default class Converter {
             const intervalID = window.setInterval(async () => {
                 const workerInstance = await this.spawnWorker(resourceID);
                 if (!workerInstance.busy) {
-                    workerInstance.worker.postMessage({videoBuffer, name});
+                    workerInstance.worker.postMessage({videoBuffer, name, inType: 'mp4', outType: 'mp3'}, [videoBuffer]);
                     workerInstance.busy = true;
                     workerInstance.worker.onmessage = (event: MessageEvent<ConverterWorkerEvent>) => {
                         this.onMessage(event, workerInstance.id, resolve, reject);
@@ -78,10 +78,10 @@ export default class Converter {
                 }, 1000);
                  
 
-                const downloadend = new CustomEvent<ConversionEnd>('downloadend', {
+                const conversionend = new CustomEvent<ConversionEnd>('conversionend', {
                     detail: {workerID: id}
                 });
-                window.dispatchEvent(downloadend);
+                window.dispatchEvent(conversionend);
 
                 resolve(event.data.audioBuffer);
                 break;

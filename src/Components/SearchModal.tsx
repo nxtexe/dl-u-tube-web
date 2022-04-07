@@ -114,8 +114,21 @@ export class SearchModal extends React.Component<any, SearchModalState> {
 
         const {url, contentLength, fileType} = this.state;
         const {title, coverArtFile, duration, author} = this.state.result;
-        const converted = fileType === "mp3" ? false : undefined;
         const _id = uuid4();
+
+        DownloadHistory.instance.insertOne({
+            id: _id,
+            download: {
+                title: title,
+                coverArt: coverArtFile,
+                duration: duration,
+                url: this.state.url,
+                author: author,
+                type: fileType,
+                data: null,
+            }
+        });
+
         let data = await Downloader.instance.download(_id, url, contentLength);
         
         if (fileType === "mp3") {
@@ -139,94 +152,9 @@ export class SearchModal extends React.Component<any, SearchModalState> {
             data = writer.arrayBuffer;
         }
 
-        DownloadHistory.instance.insertOne({
-            id: _id,
-            download: {
-                title: title,
-                coverArt: coverArtFile,
-                duration: duration,
-                url: this.state.url,
-                author: author,
-                type: fileType,
-                data: data,
-                converted
-            }
-        });
+        DownloadHistory.instance.updateOne(_id, {data});
 
         // notify user if possible
-
-        
-        // downloader.onmessage = async (event: MessageEvent<Blob>) => {
-        //     if (!this.state.result) return;
-        //     const blob = event.data;
-
-        //     if (this.state.fileType === "mp4") {
-        //         try {
-        //             const videoData = this.state.result;
-        //             // save download locally
-        //             DownloadHistory.instance.insertOne({
-        //                 download: {
-        //                     title: videoData.title,
-        //                     coverArt: videoData.coverArtFile,
-        //                     duration: videoData.duration,
-        //                     url: this.state.url,
-        //                     author: videoData.author,
-        //                     type: 'mp4'
-        //                 }
-        //             });
-        //             fileSave(blob, {
-        //                 fileName: this.state.result.title + '.mp4',
-        //                 mimeTypes: ['video/mp4'],
-        //                 extensions: ['.mp4']
-        //             });
-        //         } catch(e) {
-        //             console.error(e);
-        //         }
-        //     } else {
-        //         try {
-        //             const audioData = this.state.result;
-        //             const name = audioData.title;
-                    
-        //             const videoBuffer = await getFileRaw(blob);
-        //             const mp3Buffer = await Converter.instance.mp4ToMp3(videoBuffer, name);
-        //             const coverArtBuffer = await getFileRaw(audioData.coverArtFile);
-        //             const writer = new ID3Writer(mp3Buffer);
-        //             // TODO WOAS, WORS, WOAF, TPE2, TALB, TYEAR, TDAT, COMM
-        //             writer.setFrame('TIT2', audioData.title)
-        //             .setFrame('TPE1', audioData.author.split(','))
-        //             .setFrame('TLEN', audioData.duration)
-        //             .setFrame('APIC', {
-        //                 type: 3,
-        //                 data: coverArtBuffer,
-        //                 description: 'The Melodic Blue',
-        //                 useUnicodeEncoding: false
-
-        //             });
-        //             writer.addTag();
-
-        //             // save download locally
-        //             DownloadHistory.instance.insertOne({
-        //                 download: {
-        //                     title: name,
-        //                     coverArt: audioData.coverArtFile,
-        //                     duration: audioData.duration,
-        //                     url: this.state.url,
-        //                     author: audioData.author,
-        //                     type: 'mp3'
-        //                 }
-        //             });
-
-        //             fileSave(writer.getBlob(), {
-        //                 fileName: name + '.mp3',
-        //                 mimeTypes: [blob.type],
-        //                 extensions: ['.mp3']
-        //             });
-                    
-        //         } catch(e) {
-        //             console.error(e);
-        //         }
-        //     }
-        // }
     }
 
     render() {

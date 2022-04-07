@@ -23,21 +23,24 @@ const ffmpeg = createFFmpeg({
     progress: ({ratio}) => postMessage<ConverterWorkerProgress>({type: "progress", progress: ratio})
 });
 
-interface VideoData {
+export interface VideoData {
     videoBuffer: ArrayBuffer;
     name: string;
+    inType: string;
+    outType: string;
 }
+
 onmessage = async (event: MessageEvent<VideoData>) => {
     try {
-        const {videoBuffer, name} = event.data;
+        const {videoBuffer, name, inType, outType} = event.data;
 
         if (!ffmpeg.isLoaded()) {
             await ffmpeg.load();
         }
 
-        ffmpeg.FS('writeFile', `${name}.mp4`, new Uint8Array(videoBuffer));
-        await ffmpeg.run('-i', `${name}.mp4`, `${name}.mp3`);
-        const data = ffmpeg.FS('readFile', `${name}.mp3`);
+        ffmpeg.FS('writeFile', `${name}.${inType}`, new Uint8Array(videoBuffer));
+        await ffmpeg.run('-i', `${name}.${inType}`, `${name}.${outType}`);
+        const data = ffmpeg.FS('readFile', `${name}.${outType}`);
 
         postMessage<ConverterWorkerResult>({audioBuffer: data.buffer, type: "result"}, [data.buffer]);
     } catch (e) {
