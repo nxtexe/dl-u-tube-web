@@ -4,7 +4,7 @@ import {ReactComponent as BGElement} from '../assets/BGElement.svg';
 import {Nav} from '../Components';
 import '../css/Home.css';
 import { SearchModal } from '../Components';
-import { Navigation, SharedElement } from 'react-motion-router';
+import { Motion, Navigation, SharedElement } from 'react-motion-router';
 
 interface HomeProps {
     navigation: Navigation;
@@ -22,9 +22,15 @@ export class Home extends React.Component<HomeProps> {
                     </SharedElement>
                 </div>
                 <SearchModal />
-                <div className="bg-element">
-                    <BGElement width={window.innerWidth} />
-                </div>
+                <Motion.Consumer>
+                    {(progress) => 
+                        <div className="bg-element" style={{
+                            transform: `translate(-${(progress / 100) * 30}%, 0%) rotate(${(progress / 100) * 156}deg)`
+                        }}>
+                            <BGElement width={600} viewBox='0 0 560 273' />
+                        </div>
+                    }
+                </Motion.Consumer>
                 <Nav
                     navigation={this.props.navigation}
                 />

@@ -19,10 +19,15 @@ interface DownloadEnd {
     workerID: string;
 }
 
-type DownloadProgressHandler = ((resourceID?: string, progress?: number)=>void) | null;
+type DownloadProgressHandler = ((resourceID: string, progress: number)=>void) | null;
 
 type Resolver = (value: ArrayBuffer | PromiseLike<ArrayBuffer>) => void;
 type Rejecter = (reason?: any) => void;
+
+export interface DownloadProgress {
+    resourceID: string;
+    progress: number;
+}
 
 export default class Downloader {
     private static _instance: Downloader | null = null;
@@ -35,7 +40,6 @@ export default class Downloader {
     set onProgress(_onProgress: DownloadProgressHandler) {
         this._onProgress = _onProgress;
     }
-
 
     static get instance(): Downloader {
         if (!Downloader._instance) {

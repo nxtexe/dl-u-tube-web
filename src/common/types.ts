@@ -1,3 +1,5 @@
+import {NotificationPreferences} from '../Screens/Settings';
+
 export interface VideoResult {
     title: string;
     author: string;
@@ -16,4 +18,9 @@ export interface RawVideoResult {
         url: string;
     }[];
     contentLength: string;
+}
+
+export interface Preferences {
+    notifications: NotificationPreferences;
+    filetype: "mp3" | "mp4";
 }

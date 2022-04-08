@@ -29,6 +29,10 @@ export function Ticker(props: TickerProps) {
             }
         }
         setTimeoutID(window.setTimeout(timeout.bind(null, ref.current), 1000));
+        
+        return () => {
+            clearTimeout(timeoutID);
+        }
     }, [props.children]);
 
     return <p className={props.className} ref={ref}>{props.children}</p>

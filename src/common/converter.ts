@@ -19,9 +19,14 @@ interface ConversionEnd {
     workerID: string;
 }
 
-type ConversionProgressHandler = ((resourceID?: string, progress?: number)=>void) | null;
+type ConversionProgressHandler = ((resourceID: string, progress: number)=>void) | null;
 type Resolver = (value: ArrayBuffer | PromiseLike<ArrayBuffer>) => void;
 type Rejecter = (reason?: any) => void;
+
+export interface ConversionProgress {
+    resourceID: string;
+    progress: number;
+}
 
 export default class Converter {
     private static _instance: Converter | null = null;

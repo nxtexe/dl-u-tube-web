@@ -1,8 +1,9 @@
 import React from 'react';
 import { Download } from '../common/downloadhistory';
-import { Ticker } from './Ticker';
+import CircularProgress from '@mui/material/CircularProgress';
 import '../css/DownloadList.css';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { VideoInfo } from './VideoInfo';
 
 interface DownloadListProps {
     downloads: Download[];
@@ -19,30 +20,12 @@ export class DownloadList extends React.Component<DownloadListProps> {
                     dataLength={downloads.length}
                     next={this.props.getNext}
                     hasMore={this.props.hasMore}
-                    loader={<div>Loading</div>}
+                    loader={<div className='loading'><CircularProgress color="secondary" /></div>}
                 >
                 {
-                    downloads.map((download, index) => 
-                        <div className="video-info" key={index}>
-                            <div className="cover-art">
-                                <img ref={(ref: HTMLImageElement | null) => {
-                                    if (ref) {
-                                        if (ref.src) URL.revokeObjectURL(ref.src);
-                                        ref.src = URL.createObjectURL(download.coverArt);
-                                    }
-                                }} alt="cover-art" />
-                            </div>
-                            <div className="info">
-                                <div className="title-wrap">
-                                    <Ticker className="title">{download.title}</Ticker>
-                                </div>
-                                <div className="author-wrap">
-                                    <Ticker className="author">{download.author}</Ticker>
-                                </div>
-                                <small className="duration">{download.duration}</small>
-                            </div>
-                        </div>
-                    )
+                    downloads.map((download, index) => {
+                        return <VideoInfo {...download} key={index} />
+                    })
                 }
                 </InfiniteScroll>
             </div>

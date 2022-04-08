@@ -76,6 +76,7 @@ export function toggleTicker(ref: HTMLElement, parent: HTMLElement) {
       title2.style.marginLeft = '0';
       const duration = 10000 * (titleWidth / width);
       const startDuration = (titleWidth / (width + titleWidth + overflow)) * duration;
+      if (duration < 0 || isNaN(duration)) return;
       function animate() {
         let animated;
         const delay = playing ? duration * 0.1 : startDuration * 0.9;

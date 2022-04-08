@@ -4,6 +4,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import DoneIcon from '@mui/icons-material/Done';
 import '../css/PasteInput.css';
 import { getClipboardText, isYTURL } from '../common/utils';
+import Permissions from '../common/permissions';
 import Toast from './Toast';
 
 interface PasteInputProps {
@@ -14,24 +15,34 @@ interface PasteInputProps {
 export function PasteInput(props: PasteInputProps) {
     const [url, setURL] = useState('');
     const [loading, setLoading] = useState(false);
+    const permissions = new Permissions();
 
     useEffect(() => {
-        function getURL() {
-            getClipboardText()
-            .then(clipText => {
+        const onClipboard = (clipText: string) => {
+            if (isYTURL(clipText)) {
                 setLoading(true);
-                if (isYTURL(clipText)) {
-                    Toast.toast("Link Pasted!");
-                    navigator.vibrate(200);
-                    setURL(clipText);
-                    props.onPaste(clipText);
-                }
-            });
+                Toast.toast("Link Pasted!");
+                navigator.vibrate(200);
+                setURL(clipText);
+                props.onPaste(clipText);
+            }
+        }
+        async function getURL() {
+            if (await permissions.clipboard) {
+                getClipboardText()
+                .then(onClipboard);
+            } else {
+                permissions.requestPermission('clipboard', getClipboardText)
+                .then(async (value) => {
+                    if (value) {
+                        onClipboard(await value); // please refactor 😭
+                    }
+                });
+            }
         }
 
         if (document.hasFocus()) {
             getURL();
-            
         }
 
         window.addEventListener('focus', getURL);

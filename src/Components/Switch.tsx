@@ -1,8 +1,8 @@
 import React from 'react';
-import { Switch as DefaultSwitch } from '@mui/material';
+import { Switch as DefaultSwitch, SwitchProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-export const Switch = styled((props) => (
+export const Switch = styled((props: SwitchProps) => (
     <DefaultSwitch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
   ))(({ theme }) => ({
     width: 42,
@@ -55,6 +55,6 @@ export const Switch = styled((props) => (
       }),
       border: '1px solid' + theme.palette.secondary.light
     },
-  }));
+}));
 
 export default Switch;

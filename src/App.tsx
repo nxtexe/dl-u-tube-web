@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {ThemeProvider} from '@mui/material/styles';
 import {darkTheme} from './Components';
 import {Home, Settings, History} from './Screens';
@@ -6,14 +6,17 @@ import { Router, Stack } from 'react-motion-router';
 import { getPWADisplayMode, iOS } from './common/utils';
 import './css/App.css';
 import Toast from './Components/Toast';
+import Alert from './Components/Alert';
 
 const isPWA = getPWADisplayMode() === 'standalone';
 
 function App() {
+  // useEffect(() => {document.body.classList.remove('splash-screen')}, []);
   return (
     <ThemeProvider theme={darkTheme}>
       <div className="app dark-mode">
         <Toast />
+        <Alert />
         <Router config={{
           defaultRoute: '/',
           disableDiscovery: !isPWA,

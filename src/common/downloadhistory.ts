@@ -9,6 +9,9 @@ export interface Download {
     author: string;
     url: string;
     type: "mp4" | "mp3";
+    downloaded: boolean;
+    id?: string;
+    timestamp: number;
 }
 
 interface Entry {
@@ -16,11 +19,14 @@ interface Entry {
     download: Download;
 }
 
+type UpdateListener = (id: string, data: Download) => void;
+
 export default class DownloadHistory {
     private static _instance: DownloadHistory | null = null;
+    private _onUpdateListeners: UpdateListener[] = [];
     private forage = localforage.createInstance({
         driver: localforage.INDEXEDDB,
-        name: 'dl-u-tube',
+        name: process.env.REACT_APP_DB_NAME,
         storeName: 'history',
         version: 1.0
     });
@@ -37,22 +43,36 @@ export default class DownloadHistory {
 
     // startFrom and limit for pagination
     async find(IDs?: string[], startFrom?: number, limit?: number): Promise<[Download[], number | undefined]> {
+        const length = await this.forage.length()
+        if (startFrom && startFrom > length) throw (new Error("Range Error"));
         if (!IDs || !IDs.length) {
-            IDs = await this.forage.keys();
+            if (!limit) limit = Math.min(length, 20);
+            limit = Math.min(length, limit);
+        } else {
+            limit = length; // if IDs are specified then iterate all records
         }
-        if (!limit) limit = Math.min(IDs.length, 10);
-        limit = Math.min(IDs.length, limit);
 
         if (!startFrom) startFrom = 0;
-        if (startFrom > IDs.length) throw (new Error("Range Error"));
 
         const values: Download[] = [];
-        for (let i = startFrom; i < limit; i++) {
-            const download = await this.forage.getItem<Download>(IDs[i]);
-            if (download) values.push(download);
-        }
+        await this.forage.iterate(function (download: Download, _id: string, index: number) {
+            if (startFrom === undefined || limit === undefined) return _id;
+            if (index - 1 >= startFrom && index - 1 < limit) {
+                if (!IDs || !IDs.length) {
+                    if (download) values.push(download);
+                } else {
+                    if (IDs.includes(_id)) {
+                        values.push(download);
+                    }
+                }
+                
+                return undefined;
+            } else {
+                return _id; // exit iteration
+            }
+        } as any);
 
-        const next = startFrom + limit < IDs.length ? startFrom + limit : undefined;
+        const next = startFrom + limit < length ? startFrom + limit : undefined;
         return [values, next];
     }
 
@@ -70,7 +90,7 @@ export default class DownloadHistory {
                     const entry = await this.forage.getItem(id);
                     if (entry) reject("Duplicate ID");
                 }
-                await this.forage.setItem<Download>(id, download);
+                await this.forage.setItem<Download>(id, {...download, id: id});
             }
 
             resolve(undefined);
@@ -85,21 +105,35 @@ export default class DownloadHistory {
                 const entry = await this.forage.getItem(id);
                 if (entry) reject("Duplicate ID");
             }
-            await this.forage.setItem<Download>(id, download);
+            await this.forage.setItem<Download>(id, {...download, id: id});
             resolve(undefined);
         });
     }
 
-    async updateOne(id: string, data: Partial<Download>) {
-        const download = await this.findOne(id);
+    async updateOne(_id: string, data: Partial<Download>) {
+        const download = await this.findOne(_id);
         if (download) {
-            await this.forage.setItem<Download>(id, {
+            const updated = {
                 ...download,
                 ...data
-            });
+            };
+
+            await this.forage.setItem<Download>(_id, updated);
+            this.dispatchUpdateEvents(_id, updated);
 
             return true;
         }
         return false;
+    }
+
+    private dispatchUpdateEvents(_id: string, updated: Download) {
+        this._onUpdateListeners.map((updateListener) => {
+            updateListener(_id, updated);
+            return;
+        });
+    }
+
+    addUpdateListener(_onUpdate: UpdateListener) {
+        this._onUpdateListeners.push(_onUpdate);
     }
 }

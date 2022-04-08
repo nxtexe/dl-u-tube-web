@@ -53,7 +53,6 @@ export function InfoEditor(props: InfoEditorProps) {
             if (inputRef.current.files?.length) {
                 const [file] = inputRef.current.files;
                 setCoverArt(file.name);
-                console.log(file);
                 if (!props.info) return;
                 props.onChange({
                     ...props.info,

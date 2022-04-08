@@ -1,8 +1,10 @@
 .dropdown {
-    transform: translate(20px, -10px);
-    width: 64px;
+    padding-left: 30px;
+    transform: translate(12px, -.3em);
+    display: flex;
+    width: 100%;
     z-index: 1;
-    position: relative;
+    position: absolute;
     transition: bottom 1s ease, position 1s ease;
 }
 .dropdown .top {
@@ -29,11 +31,12 @@
     align-items: center;
     border-radius: 0px 0px 2px 2px;
     z-index: 10;
-    width: 100%;
+    width: 64px;
     height: 0;
     padding: 0;
     overflow: hidden;
     position: absolute;
+    top: 20px;
     transition: height 1s ease;
     text-align: center;
 }
@@ -57,8 +60,8 @@
     opacity: 0;
 }
 .search-modal.expand .dropdown {
-    position: absolute;
     bottom: 40px;
+    transform: translate(0, -.3em);
 }
 .dropdown.open {
     bottom: 60px!important;

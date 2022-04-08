@@ -12,12 +12,13 @@ import { RawVideoResult, VideoResult } from '../common/types';
 import Dropdown from './Dropdown';
 import moment from 'moment';
 import { fetchImage, formatFromDuration, getFileRaw } from '../common/utils';
-import Downloader from '../common/downloader';
-import Converter from '../common/converter';
+import Downloader, { DownloadProgress } from '../common/downloader';
+import Converter, { ConversionProgress } from '../common/converter';
 import ID3Writer from 'browser-id3-writer';
 import DownloadHistory from '../common/downloadhistory';
 import {v4 as uuid4} from 'uuid';
 import Toast from './Toast';
+import localforage from 'localforage';
 
 interface SearchModalState {
     result?: VideoResult;
@@ -30,10 +31,14 @@ interface SearchModalState {
 }
 
 export class SearchModal extends React.Component<any, SearchModalState> {
+    private unsavedForage = localforage.createInstance({
+        name: process.env.REACT_APP_DB_NAME,
+        storeName: 'unsaved'
+    });
     constructor(props: any) {
         super(props);
         this.onPaste = this.onPaste.bind(this);
-        this.onSave = this.onSave.bind(this);
+        this.onDownload = this.onDownload.bind(this);
     }
 
     state: SearchModalState = {
@@ -45,6 +50,22 @@ export class SearchModal extends React.Component<any, SearchModalState> {
     }
 
     async componentDidMount() {
+        Converter.instance.onProgress = (resourceID, progress) => {
+            const conversionProgress = new CustomEvent<ConversionProgress>('conversionprogress', {
+                detail: {resourceID, progress}
+            });
+
+            window.dispatchEvent(conversionProgress);
+        }
+
+        Downloader.instance.onProgress = (resourceID, progress) => {
+            const downloadProgress = new CustomEvent<DownloadProgress>('downloadprogress', {
+                detail: {resourceID, progress}
+            });
+
+            window.dispatchEvent(downloadProgress);
+        }
+
         const url = 'https://www.youtube.com/watch?v=-TxzW4eklEU';
         try {
             const response = await fetch(`/api/video/info?url=${url}`);
@@ -94,21 +115,28 @@ export class SearchModal extends React.Component<any, SearchModalState> {
 
             const [coverArt] = info.thumbnails;
 
+            const duration = parseFloat(info.duration);
+
             const videoResult: VideoResult = {
                 coverArt: coverArt.url,
                 coverArtFile: await fetchImage(coverArt.url),
                 title: info.title,
                 author: info.author,
-                duration: info.duration
+                duration: moment.utc(duration).format(formatFromDuration(duration / 1000))
             }
 
-            this.setState({result: videoResult, defaults: videoResult});
+            this.setState({
+                result: videoResult,
+                defaults: videoResult,
+                contentLength: parseInt(info.contentLength),
+                url: url
+            });
         } catch(e) {
             console.error(e);
         }
     }
 
-    async onSave() {
+    async onDownload() {
         if (!this.state.result) return;
         Toast.toast('Added to Download Queue');
 
@@ -116,16 +144,20 @@ export class SearchModal extends React.Component<any, SearchModalState> {
         const {title, coverArtFile, duration, author} = this.state.result;
         const _id = uuid4();
 
+        this.setState({result: undefined, defaults: undefined, url: '', expand: false, contentLength: 0});
+
         DownloadHistory.instance.insertOne({
             id: _id,
             download: {
                 title: title,
                 coverArt: coverArtFile,
                 duration: duration,
-                url: this.state.url,
+                url: url,
                 author: author,
                 type: fileType,
                 data: null,
+                downloaded: false,
+                timestamp: Date.now()
             }
         });
 
@@ -152,8 +184,8 @@ export class SearchModal extends React.Component<any, SearchModalState> {
             data = writer.arrayBuffer;
         }
 
-        DownloadHistory.instance.updateOne(_id, {data});
-
+        DownloadHistory.instance.updateOne(_id, {data, downloaded: true});
+        this.unsavedForage.setItem(_id, fileType);
         // notify user if possible
     }
 
@@ -175,7 +207,7 @@ export class SearchModal extends React.Component<any, SearchModalState> {
                 />
 
                 <div className="options">
-                    <IconButton onClick={this.onSave}>
+                    <IconButton onClick={this.onDownload}>
                         <SaveAltIcon />
                     </IconButton>
                     <IconButton onClick={() => this.setState({expand: !this.state.expand})}>

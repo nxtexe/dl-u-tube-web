@@ -19,7 +19,7 @@ declare function postMessage(message: any, transfer?: Transferable[]): void;
 declare function postMessage<T>(message: T, transfer?: Transferable[]): void;
 
 const ffmpeg = createFFmpeg({
-    log: true,
+    log: false,
     progress: ({ratio}) => postMessage<ConverterWorkerProgress>({type: "progress", progress: ratio})
 });
 

@@ -24,12 +24,11 @@ export function Nav(props: NavProps) {
 
         return () => setMounted(false);
     }, []);
-    const safeAreaPadding = `${window.outerHeight - window.innerHeight}px`;
     const isHome = currentPath === '/';
     const isSettings = currentPath === '/settings';
     return (
         <div className="nav-wrap">
-            <div className="fab" style={{transform: `translate(-50%, calc(-${safeAreaPadding} - 20px))`}}>
+            <div className="fab" style={{transform: `translate(-50%, calc(-20px))`}}>
                 <IconButton disableRipple onClick={() => props.navigation.navigate('/history')} style={{zIndex: 1}}>
                     <HistoryIcon style={{color: 'white'}} />
                 </IconButton>
@@ -43,7 +42,7 @@ export function Nav(props: NavProps) {
                 <div
                     className={`home ${isHome ? 'active' : ''}`}
                     style={{
-                        transform: `translateY(-${safeAreaPadding})`
+                        transform: `translateY(-10px)`
                     }
                 }>
                     <IconButton disableRipple onClick={() => {
@@ -59,7 +58,7 @@ export function Nav(props: NavProps) {
                 <div
                     className={`settings ${isSettings ? 'active' : ''}`}
                     style={{
-                        transform: `translateY(-${safeAreaPadding})`
+                        transform: `translateY(-10px)`
                     }
                 }>
                     <IconButton disableRipple onClick={() => props.navigation.navigate('/settings')}>

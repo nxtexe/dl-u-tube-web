@@ -1,7 +1,8 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import ChevronDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ChevronUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import '../css/Dropdown.css';
+import localforage from 'localforage';
 
 interface DropdownProps {
     disabled: boolean;
@@ -9,14 +10,29 @@ interface DropdownProps {
 }
 
 export function Dropdown(props: DropdownProps) {
+    const preferencesForage = localforage.createInstance({
+        name: process.env.REACT_APP_DB_NAME,
+        storeName: 'preferences'
+    });
     const [value, setValue] = useState('mp3');
     const [open, setOpen] = useState(false);
 
     const onClick = (value: "mp3" | "mp4") => {
+        preferencesForage.setItem('filetype', value);
         setValue(value);
         setOpen(false);
         props.onChange(value);
     }
+
+    useEffect(() => {
+        preferencesForage.getItem<"mp3" | "mp4">('filetype')
+        .then((value) => {
+            if (value) {
+                setValue(value);
+                props.onChange(value);
+            }
+        });
+    }, []);
     return (
         <div className={`dropdown ${open ? 'open' : ''} ${props.disabled ? 'disabled' : ''}`}>
             <div className="top" onClick={() => {if (!props.disabled) setOpen(!open)}}>
