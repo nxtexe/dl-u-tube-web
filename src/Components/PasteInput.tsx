@@ -15,6 +15,7 @@ interface PasteInputProps {
 export function PasteInput(props: PasteInputProps) {
     const [url, setURL] = useState('');
     const [loading, setLoading] = useState(false);
+    const [timeoutID, setTimeoutID] = useState(0);
     const permissions = new Permissions();
 
     useEffect(() => {
@@ -28,10 +29,12 @@ export function PasteInput(props: PasteInputProps) {
             }
         }
         async function getURL() {
-            if (await permissions.clipboard) {
+            const clipboardPermission = await permissions.clipboard;
+            if (clipboardPermission === true) {
                 getClipboardText()
                 .then(onClipboard);
             } else {
+                if (clipboardPermission === false) return; // use some fallback UI
                 permissions.requestPermission('clipboard', getClipboardText)
                 .then(async (value) => {
                     if (value) {
@@ -42,12 +45,13 @@ export function PasteInput(props: PasteInputProps) {
         }
 
         if (document.hasFocus()) {
-            getURL();
+            setTimeoutID(window.setTimeout(getURL, 500));
         }
 
         window.addEventListener('focus', getURL);
 
         return () => {
+            clearTimeout(timeoutID);
             window.removeEventListener('focus', getURL);
         }
     }, []);

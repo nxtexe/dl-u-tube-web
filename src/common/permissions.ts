@@ -1,6 +1,6 @@
 import localforage from "localforage"
 import Alert from '../Components/Alert';
-import { getClipboardText } from "./utils";
+
 enum PermissionsEnum {
     clipboard
 }
@@ -13,11 +13,11 @@ export default class Permissions {
         storeName: 'permissions'
     });
 
-    get clipboard(): Promise<boolean> {
+    get clipboard(): Promise<boolean | null> {
         return new Promise((resolve) => {
             Permissions.permissionsForage.getItem<boolean>('clipboard')
             .then((clipboardPermission) => {
-                resolve(Boolean(clipboardPermission));
+                resolve(clipboardPermission);
             });
         });
     }
@@ -35,9 +35,14 @@ export default class Permissions {
                                 title: 'Ok',
                                 style: "Ok",
                                 onClick: async () => {
-                                    Permissions.permissionsForage.setItem(permission, true);
                                     if (resolveEntity) {
-                                        resolve(resolveEntity());
+                                        try {
+                                            resolve(await resolveEntity());
+                                            Permissions.permissionsForage.setItem(permission, true);
+                                        } catch (e) {
+                                            Permissions.permissionsForage.setItem(permission, false);
+                                            reject(e);
+                                        }
                                     }
                                     else resolve();
                                 }

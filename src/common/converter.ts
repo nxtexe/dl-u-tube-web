@@ -125,7 +125,7 @@ export default class Converter {
                     const _id = uuid4();
                     workerInstance = {
                         id: _id,
-                        worker: new Worker(new URL('../Workers/converter.worker.ts', import.meta.url)),
+                        worker: new Worker(new URL('../Workers/converter.worker.ts', import.meta.url), {type: "module"}),
                         busy: false,
                         timeoutID: 0,
                         resourceID

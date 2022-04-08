@@ -11,11 +11,12 @@ interface LogoButtonProps {
 }
 
 export default function LogoButton(props: LogoButtonProps) {
+    const defaultRotation = props.onClick ? 90 : 0;
     return (
         <div className={`logo-button ${props.neumorphic ? 'neumorphic' : ''}`} onClick={props.onClick}>
             <Motion.Consumer>
                 {(progress) => 
-                    <div className="play" style={{transform: `rotate(${clamp(progress - 10, 0, 90)}deg)`}}>
+                    <div className="play" style={{transform: `rotate(${clamp(progress - 10, 0, 90) || defaultRotation}deg)`}}>
                         <LogoPlay width={'22'} height={'19'} />
                     </div>
                 }

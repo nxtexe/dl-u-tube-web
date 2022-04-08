@@ -43,7 +43,7 @@ export default class DownloadHistory {
 
     // startFrom and limit for pagination
     async find(IDs?: string[], startFrom?: number, limit?: number): Promise<[Download[], number | undefined]> {
-        const length = await this.forage.length()
+        const length = await this.forage.length();
         if (startFrom && startFrom > length) throw (new Error("Range Error"));
         if (!IDs || !IDs.length) {
             if (!limit) limit = Math.min(length, 20);

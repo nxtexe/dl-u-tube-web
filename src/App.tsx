@@ -7,11 +7,17 @@ import { getPWADisplayMode, iOS } from './common/utils';
 import './css/App.css';
 import Toast from './Components/Toast';
 import Alert from './Components/Alert';
+import inAppInstall from './common/inappinstall';
 
 const isPWA = getPWADisplayMode() === 'standalone';
 
 function App() {
-  // useEffect(() => {document.body.classList.remove('splash-screen')}, []);
+  useEffect(() => {
+    document.body.classList.remove('splash-screen-display');
+    inAppInstall();
+  }, []);
+
+  
   return (
     <ThemeProvider theme={darkTheme}>
       <div className="app dark-mode">

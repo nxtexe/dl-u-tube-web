@@ -124,7 +124,7 @@ export default class Downloader {
                     const _id = uuid4();
                     workerInstance = {
                         id: _id,
-                        worker: new Worker(new URL('../Workers/downloader.worker.ts', import.meta.url)),
+                        worker: new Worker(new URL('../Workers/downloader.worker.ts', import.meta.url), {type: "module"}),
                         busy: false,
                         timeoutID: 0,
                         resourceID
