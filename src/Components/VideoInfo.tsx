@@ -25,8 +25,8 @@ export function VideoInfo(props: VideoInfoProps) {
 
     useEffect(() => {
         if (props.coverArt && typeof props.coverArt !== "string") {
-            URL.revokeObjectURL(src);
             setSRC(URL.createObjectURL(props.coverArt));
+            URL.revokeObjectURL(src);
         } else {
             if(props.coverArt) setSRC(props.coverArt);
         }

@@ -21,7 +21,8 @@ interface HistoryState {
     page: number;
     audioDownloads: Download[];
     videoDownloads: Download[];
-    next: number | undefined;
+    audioNext: number | undefined;
+    videoNext: number | undefined;
     unsavedAudio: string[];
     unsavedVideo: string[];
 }
@@ -32,52 +33,34 @@ export class History extends React.Component<HistoryProps> {
         name: process.env.REACT_APP_DB_NAME,
         storeName: 'unsaved'
     });
+    private getNextAudio;
+    private getNextVideo;
     constructor(props: HistoryProps) {
         super(props);
         this.onChange = this.onChange.bind(this);
-        this.getNext = this.getNext.bind(this);
+        this.getNextAudio = this.getNext.bind(this, "mp3");
+        this.getNextVideo = this.getNext.bind(this, "mp4");
         this.onSave = this.onSave.bind(this);
+        this.updateUnsaved = this.updateUnsaved.bind(this);
     }
     state: HistoryState = {
         audioDownloads: [],
         videoDownloads: [],
         page: 0,
-        next: 0,
+        audioNext: 0,
+        videoNext: 0,
         unsavedAudio: [],
         unsavedVideo: []
     }
 
     async componentDidMount() {
-        const [downloads, next] = await DownloadHistory.instance.find();
-        const audioDownloads = downloads.filter((download) => download.type === "mp3").sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
-        const videoDownloads = downloads.filter((download) => download.type === "mp4").sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
+        const [audioDownloads, audioNext] = await DownloadHistory.instance.find({type: "mp3"});
+        const [videoDownloads, videoNext] = await DownloadHistory.instance.find({type: "mp4"});
+        videoDownloads.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
+        audioDownloads.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
 
-        DownloadHistory.instance.addUpdateListener((_id, data) => {
-            if (data.data) {
-                if (data.type === "mp3") {
-                    this.setState({
-                        unsavedAudio: [
-                            ...this.state.unsavedAudio,
-                            _id
-                        ]
-                    });
-                } else {
-                    this.setState({
-                        unsavedVideo: [
-                            ...this.state.unsavedVideo,
-                            _id
-                        ]
-                    });
-                }
-            }
-        });
+        DownloadHistory.instance.addUpdateListener(this.updateUnsaved);
 
-        this.updateUnsaved();
-        
-        this.setState({videoDownloads, audioDownloads, next});
-    }
-
-    async updateUnsaved() {
         const unsavedAudio: string[] = [];
         const unsavedVideo: string[] = [];
         await this.unsavedForage.iterate(function (type: "mp3" | "mp4", _id: string) {
@@ -90,7 +73,34 @@ export class History extends React.Component<HistoryProps> {
         } as any);
 
         this.setState({unsavedAudio, unsavedVideo});
+        
+        this.setState({videoDownloads, audioDownloads, audioNext, videoNext});
     }
+
+    componentWillUnmount() {
+        DownloadHistory.instance.removeUpdateListener(this.updateUnsaved);
+    }
+
+    async updateUnsaved(_id: string, data: Partial<Download>) {
+        if (data.data) {
+            if (data.type === "mp3") {
+                this.setState({
+                    unsavedAudio: [
+                        ...this.state.unsavedAudio,
+                        _id
+                    ]
+                });
+            } else {
+                this.setState({
+                    unsavedVideo: [
+                        ...this.state.unsavedVideo,
+                        _id
+                    ]
+                });
+            }
+        }
+    }
+
     onChange() {
         let page = arguments[0];
         if (typeof arguments[0] !== "number") {
@@ -100,18 +110,24 @@ export class History extends React.Component<HistoryProps> {
         this.setState({page});
     }
 
-    async getNext() {
-        const [downloads, next] = await DownloadHistory.instance.find([], this.state.next);
-        const audioDownloads = [
-            ...this.state.audioDownloads,
-            downloads.filter((download) => download.type === "mp3").sort((a, b) => a.timestamp > b.timestamp ? -1 : 1)
-        ];
-        const videoDownloads = [
-            ...this.state.videoDownloads,
-            downloads.filter((download) => download.type === "mp4").sort((a, b) => a.timestamp > b.timestamp ? -1 : 1)
-        ];
-
-        this.setState({videoDownloads, audioDownloads, next});
+    async getNext(type: "mp3" | "mp4") {
+        if (type === "mp3") {
+            const [audioDownloads, audioNext] = await DownloadHistory.instance.find({type: type}, this.state.audioNext);
+            
+            audioDownloads.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
+            this.setState({audioNext, audioDownloads: [
+                ...this.state.audioDownloads,
+                ...audioDownloads
+            ]});
+        } else {
+            const [videoDownloads, videoNext] = await DownloadHistory.instance.find({type: type}, this.state.videoNext);
+            
+            videoDownloads.sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
+            this.setState({videoNext, videoDownloads: [
+                ...this.state.videoDownloads,
+                ...videoDownloads
+            ]});
+        }
     }
 
     async onSave() {
@@ -188,8 +204,8 @@ export class History extends React.Component<HistoryProps> {
                         <Tab label="Video" />
                     </Tabs>
                     <SwipeableViews index={this.state.page} onChangeIndex={this.onChange} style={{flex: '1'}} containerStyle={{height: '100%'}}>
-                        <DownloadList hasMore={Boolean(this.state.next)} getNext={this.getNext} downloads={this.state.audioDownloads} />
-                        <DownloadList hasMore={Boolean(this.state.next)} getNext={this.getNext} downloads={this.state.videoDownloads} />
+                        <DownloadList hasMore={Boolean(this.state.audioNext)} getNext={this.getNextAudio} downloads={this.state.audioDownloads} />
+                        <DownloadList hasMore={Boolean(this.state.videoNext)} getNext={this.getNextVideo} downloads={this.state.videoDownloads} />
                     </SwipeableViews>
                 </div>
 

@@ -1,6 +1,9 @@
 .download-list {
     height: 100%;
 }
+.download-list > div {
+  height: 100%;
+}
 .download-list .MuiLinearProgress-colorPrimary {
   background-color: white;
 }
@@ -14,4 +17,15 @@
   justify-content: center;
   align-items: center;
   color: white;
+}
+.download-list .video-info {
+  animation: 1s video-info-fade-in ease forwards;
+}
+@keyframes video-info-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

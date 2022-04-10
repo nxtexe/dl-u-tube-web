@@ -34,6 +34,7 @@ export default class Downloader {
     private workerPool: Map<string, WorkerInstance> = new Map();
     private maxWorkers = navigator.hardwareConcurrency || 2;
     private _onProgress: DownloadProgressHandler = null;
+    private _downloading: number = 0;
 
     private constructor() {}
 
@@ -49,7 +50,12 @@ export default class Downloader {
         return Downloader._instance;
     }
 
+    get downloading() {
+        return this._downloading;
+    }
+
     download(resourceID: string, url: string, contentLength: number): Promise<ArrayBuffer> {
+        this._downloading++;
         return new Promise((resolve, reject) => {
             const intervalID = window.setInterval(async () => {
                 const workerInstance = await this.spawnWorker(resourceID);
@@ -88,15 +94,17 @@ export default class Downloader {
                 window.dispatchEvent(downloadend);
 
                 resolve(event.data.videoBuffer);
-                break;
+                this._downloading--;
+            break;
             
             case "error":
                 reject(event.data.error);
-                break;
+                this._downloading--;
+            break;
             
             case "progress":
                 if (this._onProgress) this._onProgress(workerInstance.resourceID, event.data.progress);
-                break;
+            break;
             
             default:
                 reject(new Error("Unhandled Worker Event"));

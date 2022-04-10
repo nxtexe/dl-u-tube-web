@@ -12,5 +12,4 @@ export default function initialise() {
             scope: '/'
         });
     }, {once: true});
-    
 }

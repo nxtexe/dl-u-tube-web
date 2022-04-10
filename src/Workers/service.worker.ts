@@ -3,6 +3,7 @@ import { CacheFirst, CacheOnly, StaleWhileRevalidate } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration';
 import {precacheAndRoute} from 'workbox-precaching';
 
+
 // ffmpeg assets precaching
 precacheAndRoute([
     {url: 'https://unpkg.com/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js', revision: null},
@@ -20,7 +21,7 @@ registerRoute(
 
 // static assets related to fetching videos
 registerRoute(
-    ({url}) => /\/^api/.test(url.pathname),
+    ({url}) => /^\/api/.test(url.pathname),
     new CacheFirst({
         cacheName: 'video-assets',
         plugins: [
@@ -55,3 +56,4 @@ registerRoute(
     ({url}) => url.pathname === '/',
     new CacheFirst()
 );
+

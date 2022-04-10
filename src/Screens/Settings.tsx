@@ -6,6 +6,8 @@ import LogoButton from '../Components/LogoButton';
 import {Switch} from '../Components';
 import '../css/Settings.css';
 import localforage from 'localforage';
+import Permissions from '../common/permissions';
+import Alert from '../Components/Alert';
 
 
 export interface NotificationPreferences {
@@ -22,6 +24,7 @@ interface SettingsState {
 }
 
 export class Settings extends React.Component<SettingsProps, SettingsState> {
+    private permissions = new Permissions();
     private preferencesForage = localforage.createInstance({
         name: process.env.REACT_APP_DB_NAME,
         storeName: 'preferences'
@@ -48,6 +51,26 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
     }
 
     async onSwitchChange(event: React.ChangeEvent<HTMLInputElement>, checked: boolean) {
+        const notificationPermissions = await this.permissions.notifications;
+        if (notificationPermissions === null) {
+            try {
+                await this.permissions.requestPermission('notification', (): Promise<void> => {
+                    return new Promise(async (resolve, reject) => {
+                        const permission = await Notification.requestPermission();
+                        if (permission === "denied") reject();
+                        else resolve();
+                    });
+                });
+            } catch (e) {
+                return;
+            }
+        } else if (notificationPermissions === false) {
+            Alert.alert(
+                "Enable Notifications",
+                "For us to send you notifications we need you to enable notifications in the site settings for your browser."
+            );
+            return;
+        }
         const notificationPreferences = await this.preferencesForage.getItem<NotificationPreferences>("notifications");
         this.preferencesForage.setItem<NotificationPreferences>("notifications", {
             ...(notificationPreferences || {}),

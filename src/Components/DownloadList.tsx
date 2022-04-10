@@ -21,6 +21,7 @@ export class DownloadList extends React.Component<DownloadListProps> {
                     next={this.props.getNext}
                     hasMore={this.props.hasMore}
                     loader={<div className='loading'><CircularProgress color="secondary" /></div>}
+                    height={'100%'}
                 >
                 {
                     downloads.map((download, index) => {
