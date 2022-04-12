@@ -66,39 +66,39 @@ export class SearchModal extends React.Component<any, SearchModalState> {
             window.dispatchEvent(downloadProgress);
         }
 
-        const url = 'https://www.youtube.com/watch?v=-TxzW4eklEU';
-        try {
-            const response = await fetch(`/api/video/info?url=${url}`);
-            const info = await response.json() as RawVideoResult;
+        // const url = 'https://www.youtube.com/watch?v=-TxzW4eklEU';
+        // try {
+        //     const response = await fetch(`/api/video/info?url=${url}`);
+        //     const info = await response.json() as RawVideoResult;
 
-            info.thumbnails.sort((a, b) => {
-                const diff1 = a.width - a.height;
-                const diff2 = b.width - b.height;
+        //     info.thumbnails.sort((a, b) => {
+        //         const diff1 = a.width - a.height;
+        //         const diff2 = b.width - b.height;
 
-                return diff1 > diff2 ? -1 : 1;
-            });
+        //         return diff1 > diff2 ? -1 : 1;
+        //     });
 
-            const [coverArt] = info.thumbnails;
+        //     const [coverArt] = info.thumbnails;
 
-            const duration = parseFloat(info.duration);
+        //     const duration = parseFloat(info.duration);
 
-            const videoResult: VideoResult = {
-                coverArt: coverArt.url,
-                coverArtFile: await fetchImage(coverArt.url),
-                title: info.title,
-                author: info.author,
-                duration: moment.utc(duration).format(formatFromDuration(duration / 1000))
-            }
+        //     const videoResult: VideoResult = {
+        //         coverArt: coverArt.url,
+        //         coverArtFile: await fetchImage(coverArt.url),
+        //         title: info.title,
+        //         author: info.author,
+        //         duration: moment.utc(duration).format(formatFromDuration(duration / 1000))
+        //     }
 
-            this.setState({
-                result: videoResult,
-                defaults: videoResult,
-                contentLength: parseInt(info.contentLength),
-                url: url
-            });
-        } catch(e) {
-            console.error(e);
-        }
+        //     this.setState({
+        //         result: videoResult,
+        //         defaults: videoResult,
+        //         contentLength: parseInt(info.contentLength),
+        //         url: url
+        //     });
+        // } catch(e) {
+        //     console.error(e);
+        // }
     }
 
     async onPaste(url: string) {
@@ -191,11 +191,7 @@ export class SearchModal extends React.Component<any, SearchModalState> {
 
     render() {
         return (
-            <div className={
-                `search-modal\
-                ${this.state.result ? 'results' : ''}\
-                ${this.state.expand ? 'expand' : ''}`
-            }>
+            <div className={`search-modal ${this.state.result ? 'results' : ''} ${this.state.expand ? 'expand' : ''}`}>
                 <PasteInput onPaste={this.onPaste} done={Boolean(this.state.result)} />
                 <VideoInfo {...this.state.result} />
                 <Dropdown disabled={!this.state.expand} onChange={(value) => this.setState({fileType: value})} />

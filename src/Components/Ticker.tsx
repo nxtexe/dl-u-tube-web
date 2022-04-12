@@ -11,17 +11,9 @@ export function Ticker(props: TickerProps) {
     const [timeoutID, setTimeoutID] = useState(0);
     const [playing, setPlaying] = useState(false);
     const [mounted, setMounted] = useState(false);
-    
+
     useEffect(() => {
         clearTimeout(timeoutID);
-        setMounted(true);
-        if (!ref.current || !ref.current.parentElement) return;
-
-        if (playing) {
-            toggleTicker(ref.current, ref.current.parentElement);
-            setPlaying(false);
-        }
-
         function timeout(ref: HTMLParagraphElement | null) {
             if (!mounted) clearTimeout(timeoutID);
             if (ref && ref.parentElement) {
@@ -32,7 +24,17 @@ export function Ticker(props: TickerProps) {
             }
         }
         setTimeoutID(window.setTimeout(timeout.bind(null, ref.current), 1000));
-        
+    }, [playing, mounted]);
+    
+    useEffect(() => {
+        setMounted(true);
+        if (!ref.current || !ref.current.parentElement) return;
+
+        if (playing) {
+            toggleTicker(ref.current, ref.current.parentElement);
+            setPlaying(false);
+        }
+
         return () => {
             setMounted(false);
         }

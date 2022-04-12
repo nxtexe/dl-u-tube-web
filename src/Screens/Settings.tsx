@@ -33,8 +33,6 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
     constructor(props: SettingsProps) {
         super(props);
         this.onSwitchChange = this.onSwitchChange.bind(this);
-        
-        
     }
 
     state: SettingsState = {
@@ -88,6 +86,8 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
     render() {
         return (
             <div className="settings screen-grid">
+                <label htmlFor='downloads-finish'>Downloads Finish Switch</label>
+                <label htmlFor='update-available'>Updates Avaiable Switch</label>
                 <div className="banner">
                     <LogoButton onClick={() => this.props.navigation.goBack()} />
                     <SharedElement id="page-title">
@@ -100,6 +100,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
                         <div className="option">
                             <p className="option-title">Downloads Finish</p>
                             <Switch
+                                id="downloads-finish"
                                 checked={Boolean(this.state.notifications.downloads_finish)}
                                 onChange={this.onSwitchChange}
                                 name="downloads-finish"
@@ -108,6 +109,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState> {
                         <div className="option">
                             <p className="option-title">Update Available</p>
                             <Switch
+                                id="update-available"
                                 checked={Boolean(this.state.notifications.update_available)}
                                 onChange={this.onSwitchChange}
                                 name="update-available"

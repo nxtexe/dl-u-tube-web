@@ -7,6 +7,7 @@ export function getPWADisplayMode() {
   }
   return 'browser';
 }
+export const isPWA = getPWADisplayMode() === 'standalone';
 export function iOS() : boolean {
   return [
     'iPad Simulator',
@@ -202,4 +203,39 @@ export function fetchImage(url: string): Promise<Blob> {
       reject(e);
     });
   });
+}
+
+export function vibrate(pattern: VibratePattern): boolean {
+  if ('vibrate' in navigator) {
+    return navigator.vibrate(pattern);
+  }
+  return false;
+}
+
+declare global {
+  interface Navigator {
+    setAppBadge: (num?: number) => void;
+    setClientBadge: (num?: number) => void;
+    clearAppBadge: () => void;
+    clearClientBadge: () => void;
+  }
+}
+export function setBadge(num?: number) {
+  if ('setAppBadge' in navigator || 'setClientBadge' in navigator) {
+    if (getPWADisplayMode() === "standalone") {
+      navigator.setAppBadge(num);
+    } else {
+      navigator.setClientBadge(num);
+    }
+  }
+}
+
+export function clearBadge(num?: number) {
+  if ('clearAppBadge' in navigator || 'clearClientBadge' in navigator) {
+    if (getPWADisplayMode() === "standalone") {
+      navigator.clearAppBadge();
+    } else {
+      navigator.clearClientBadge();
+    }
+  }
 }

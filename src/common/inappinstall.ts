@@ -15,7 +15,6 @@ export default async function inAppInstall() {
         e.preventDefault();
         if (await new Permissions().notifications !== true) return;
         const intervalID = setInterval(() => {
-            console.log(document.hasFocus());
             if (!document.hasFocus()) return;
             clearInterval(intervalID);
             Alert.alert(

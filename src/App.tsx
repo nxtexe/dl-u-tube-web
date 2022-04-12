@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import {ThemeProvider} from '@mui/material/styles';
 import {darkTheme} from './Components';
 import {Home, Settings, History} from './Screens';
-import { Router, Stack } from 'react-motion-router';
-import { getPWADisplayMode, iOS } from './common/utils';
+import { AnimationConfig, Router, Stack } from 'react-motion-router';
+import { iOS, isPWA } from './common/utils';
 import './css/App.css';
 import Toast from './Components/Toast';
 import Alert from './Components/Alert';
@@ -15,7 +15,17 @@ import { NotificationPreferences } from './Screens';
 import { Download } from './common/downloadhistory';
 import Downloader from './common/downloader';
 
-const isPWA = getPWADisplayMode() === 'standalone';
+let animation: AnimationConfig = {
+  type: 'fade',
+  duration: 350
+};
+
+if (iOS() && !isPWA) {
+  animation = {
+    type: 'none',
+    duration: 0
+  }
+}
 
 function App() {
   useEffect(() => {
@@ -65,12 +75,7 @@ function App() {
           defaultRoute: '/',
           disableDiscovery: !isPWA,
           disableBrowserRouting: isPWA && iOS(),
-          animation: {
-            in: {
-              type: 'fade',
-              duration: 350
-            }
-          }
+          animation: animation
         }}>
           <Stack.Screen path={'/'} component={Home} />
           <Stack.Screen path={'/settings'} component={Settings} />

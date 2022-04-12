@@ -18,13 +18,15 @@ interface InfoEditorProps {
 export function InfoEditor(props: InfoEditorProps) {
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
+    const [authorList, setAuthorList] = useState<string[]>([]);
     const [coverArt, setCoverArt] = useState('...');
     const inputRef = React.createRef<HTMLInputElement>();
 
     useEffect(() => {
         setTitle(props.info?.title || '');
         setAuthor(props.info?.author || '');
-        setCoverArt('...')
+        setCoverArt('...');
+        if (props.info?.author) setAuthorList([props.info.author]);
     }, [props.open, props.undo]);
 
     function onTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -36,13 +38,27 @@ export function InfoEditor(props: InfoEditorProps) {
         });
     }
 
+    function onEnter(e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
+        if (e.code === "Enter") {
+            const {length} = author;
+            if (length) {
+                const newAuthorList = [
+                    ...authorList,
+                    author                    
+                ];
+                setAuthorList(newAuthorList);
+                setAuthor('');
+                if (!props.info) return;
+                props.onChange({
+                    ...props.info,
+                    author: newAuthorList.join(', ')
+                });
+            }
+        }
+    }
+
     function onAuthorChange(e: React.ChangeEvent<HTMLInputElement>) {
         setAuthor(e.target.value);
-        if (!props.info) return;
-        props.onChange({
-            ...props.info,
-            author: e.target.value
-        });
     }
 
     async function onChangeImage() {
@@ -64,26 +80,14 @@ export function InfoEditor(props: InfoEditorProps) {
     }
     return (
         <div className="info-editor">
+            <label htmlFor="title">Title</label>
+            <label htmlFor="author">Author</label>
+            <label htmlFor="cover-art">Cover Art</label>
             <div className="title">
                 <TextField
+                    id="title"
                     value={title}
                     onChange={onTitleChange}
-                    endAdornment={
-                        <InputAdornment position="end">
-                            <EditIcon />
-                        </InputAdornment>
-                    } 
-                    startAdornment={
-                        <InputAdornment position="start">
-                            <PersonIcon />
-                        </InputAdornment>
-                    }
-                />
-            </div>
-            <div className="author">
-                <TextField
-                    value={author}
-                    onChange={onAuthorChange}
                     endAdornment={
                         <InputAdornment position="end">
                             <EditIcon />
@@ -96,8 +100,27 @@ export function InfoEditor(props: InfoEditorProps) {
                     }
                 />
             </div>
+            <div className="author">
+                <TextField
+                    id="author"
+                    value={author}
+                    onChange={onAuthorChange}
+                    onKeyDown={onEnter}
+                    endAdornment={
+                        <InputAdornment position="end">
+                            <EditIcon />
+                        </InputAdornment>
+                    } 
+                    startAdornment={
+                        <InputAdornment position="start">
+                            <PersonIcon />
+                        </InputAdornment>
+                    }
+                />
+            </div>
             <div className="cover-art">
                 <TextField
+                    id="cover-art"
                     onClick={onChangeImage}
                     value={coverArt}
                     endAdornment={

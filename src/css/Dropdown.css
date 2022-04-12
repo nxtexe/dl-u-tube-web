@@ -1,11 +1,17 @@
 .dropdown {
     padding-left: 30px;
-    transform: translate(12px, -.3em);
+    transform: translate(3vw, -.3em);
     display: flex;
     width: 100%;
     z-index: 1;
     position: absolute;
-    transition: bottom 1s ease, position 1s ease;
+    transition: bottom 1s ease, position 1s ease, transform 1s ease, opacity 1s ease;
+    bottom: 35px;
+    opacity: 1;
+}
+.search-modal:not(.results) .dropdown {
+    bottom: auto;
+    opacity: 0;
 }
 .dropdown .top {
     color: white;

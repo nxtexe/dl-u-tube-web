@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigation, SharedElement } from 'react-motion-router';
+import { Navigation, SharedElement, Motion } from 'react-motion-router';
 import DownloadHistory, { Download } from '../common/downloadhistory';
 import {DownloadList, Nav} from '../Components';
 import LogoButton from '../Components/LogoButton';
@@ -12,6 +12,7 @@ import localforage from 'localforage';
 import JSZip from 'jszip';
 import {fileSave} from 'browser-fs-access';
 import Toast from '../Components/Toast';
+import {iOS, isPWA} from '../common/utils';
 
 interface HistoryProps {
     navigation: Navigation;
@@ -198,16 +199,24 @@ export class History extends React.Component<HistoryProps> {
                     </Button>
                     }
                 </div>
-                <div className="tab-panel">
-                    <Tabs value={this.state.page} onChange={this.onChange} component="div">
-                        <Tab label="Audio" />
-                        <Tab label="Video" />
-                    </Tabs>
-                    <SwipeableViews index={this.state.page} onChangeIndex={this.onChange} style={{flex: '1'}} containerStyle={{height: '100%'}}>
-                        <DownloadList hasMore={Boolean(this.state.audioNext)} getNext={this.getNextAudio} downloads={this.state.audioDownloads} />
-                        <DownloadList hasMore={Boolean(this.state.videoNext)} getNext={this.getNextVideo} downloads={this.state.videoDownloads} />
-                    </SwipeableViews>
-                </div>
+                <Motion.Consumer>
+                    {(progress) => {
+                        progress = iOS() && !isPWA ? 100 : progress;
+                        return (
+                            <div className="tab-panel" style={{borderRadius: `${(100 - progress) / 2}%`, transform: `scale(${progress / 100})`}}>
+                                <Tabs value={this.state.page} onChange={this.onChange} component="div">
+                                    <Tab label="Audio" value={0} />
+                                    <Tab label="Video" value={1} />
+                                </Tabs>
+                                <SwipeableViews index={this.state.page} onChangeIndex={this.onChange} style={{flex: '1'}} containerStyle={{height: '100%'}}>
+                                    <DownloadList hasMore={Boolean(this.state.audioNext)} getNext={this.getNextAudio} downloads={this.state.audioDownloads} />
+                                    <DownloadList hasMore={Boolean(this.state.videoNext)} getNext={this.getNextVideo} downloads={this.state.videoDownloads} />
+                                </SwipeableViews>
+                            </div>
+                        )
+                    }
+                }
+                </Motion.Consumer>
 
                 <Nav
                     navigation={this.props.navigation}

@@ -3,7 +3,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CircularProgress from '@mui/material/CircularProgress';
 import DoneIcon from '@mui/icons-material/Done';
 import '../css/PasteInput.css';
-import { getClipboardText, isYTURL } from '../common/utils';
+import { getClipboardText, isYTURL, vibrate } from '../common/utils';
 import Permissions from '../common/permissions';
 import Toast from './Toast';
 
@@ -18,16 +18,22 @@ export function PasteInput(props: PasteInputProps) {
     const [timeoutID, setTimeoutID] = useState(0);
     const permissions = new Permissions();
 
-    useEffect(() => {
-        const onClipboard = (clipText: string) => {
-            if (isYTURL(clipText)) {
-                setLoading(true);
-                Toast.toast("Link Pasted!");
-                navigator.vibrate(200);
-                setURL(clipText);
-                props.onPaste(clipText);
-            }
+    const onClipboard = (clipText: string) => {
+        if (isYTURL(clipText)) {
+            setLoading(true);
+            Toast.toast("Link Pasted!");
+            vibrate(200);
+            setURL(clipText);
+            props.onPaste(clipText);
         }
+    }
+
+    useEffect(() => {
+        setLoading(false);
+        setURL('');
+    }, [props.done]);
+
+    useEffect(() => {
         async function getURL() {
             const clipboardPermission = await permissions.clipboard;
             if (clipboardPermission === true) {
@@ -44,11 +50,13 @@ export function PasteInput(props: PasteInputProps) {
             }
         }
 
-        if (document.hasFocus()) {
-            setTimeoutID(window.setTimeout(getURL, 500));
+        if ('clipboard' in navigator) {
+            if (document.hasFocus()) {
+                setTimeoutID(window.setTimeout(getURL, 500));
+            }
+    
+            window.addEventListener('focus', getURL);
         }
-
-        window.addEventListener('focus', getURL);
 
         return () => {
             clearTimeout(timeoutID);
@@ -58,8 +66,17 @@ export function PasteInput(props: PasteInputProps) {
 
     return (
         <div className="paste-input">
-            <div className="input">
-                <input placeholder='Paste here...' value={url} readOnly />
+            <div className="input noselect">
+                <input 
+                    placeholder='Paste here...'
+                    value={url}
+                    readOnly={'clipboard' in navigator}
+                    onPaste={(event) => {
+                        const clipText = event.clipboardData.getData('text');
+                        onClipboard(clipText);
+                        (event.target as HTMLInputElement).blur();
+                    }}
+                />
             </div>
             <div className="adornment">
                 {(!loading && !props.done) && <SearchIcon />}

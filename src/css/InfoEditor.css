@@ -25,3 +25,7 @@
     font-weight: var(--oswald-regular);
     letter-spacing: 0;
 }
+.info-editor label {
+    opacity: 0;
+    position: absolute;
+}

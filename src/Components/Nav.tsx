@@ -29,7 +29,7 @@ export function Nav(props: NavProps) {
     return (
         <div className="nav-wrap">
             <div className="fab" style={{transform: `translate(-50%, calc(-20px))`}}>
-                <IconButton disableRipple onClick={() => props.navigation.navigate('/history')} style={{zIndex: 1}}>
+                <IconButton aria-label='download-history' disableRipple onClick={() => props.navigation.navigate('/history')} style={{zIndex: 1}}>
                     <HistoryIcon style={{color: 'white'}} />
                 </IconButton>
                 <SharedElement id="nav-fab-bg" config={{
@@ -45,7 +45,7 @@ export function Nav(props: NavProps) {
                         transform: `translateY(-10px)`
                     }
                 }>
-                    <IconButton disableRipple onClick={() => {
+                    <IconButton aria-label='home' disableRipple onClick={() => {
                         if (!isHome) {
                             props.navigation.goBack();
                         }
@@ -61,7 +61,7 @@ export function Nav(props: NavProps) {
                         transform: `translateY(-10px)`
                     }
                 }>
-                    <IconButton disableRipple onClick={() => props.navigation.navigate('/settings')}>
+                    <IconButton aria-label='settings' disableRipple onClick={() => props.navigation.navigate('/settings')}>
                         <SettingsIcon />
                     </IconButton>
                     <small>Settings</small>

@@ -6,7 +6,7 @@
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "@ffmpeg/core": "^0.10.0",
-    "@ffmpeg/ffmpeg": "file:ffmpeg-ffmpeg-0.10.3.tgz",
+    "@ffmpeg/ffmpeg": "file:ffmpeg-ffmpeg-0.10.2.tgz",
     "@mui/icons-material": "^5.5.1",
     "@mui/material": "^5.5.3",
     "@testing-library/jest-dom": "^5.16.3",
@@ -60,7 +60,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://192.168.100.69:5000",
   "devDependencies": {
     "@types/react-swipeable-views": "^0.13.1",
     "@types/uuid": "^8.3.4"
