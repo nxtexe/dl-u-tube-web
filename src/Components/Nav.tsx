@@ -21,7 +21,6 @@ export function Nav(props: NavProps) {
 
     useEffect(() => {
         setMounted(true);
-
         return () => setMounted(false);
     }, []);
     const isHome = currentPath === '/';
