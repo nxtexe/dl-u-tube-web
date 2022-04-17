@@ -11,7 +11,7 @@ interface LogoButtonProps {
 }
 
 export default function LogoButton(props: LogoButtonProps) {
-    const [defaultRotation, setDefaultRotation] = useState(iOS() && !isPWA && props.onClick ? 90 : 0);
+    const [defaultRotation, setDefaultRotation] = useState(0);
 
     useEffect(() => {
         window.addEventListener('load', () => {

@@ -8,6 +8,9 @@ import { Motion, Navigation, SharedElement } from 'react-motion-router';
 
 interface HomeProps {
     navigation: Navigation;
+    route: {
+        params: {url: string | undefined};
+    }
 }
 export class Home extends React.Component<HomeProps> {
     render() {
@@ -21,7 +24,7 @@ export class Home extends React.Component<HomeProps> {
                         <h3>DL-U-Tube</h3>
                     </SharedElement>
                 </div>
-                <SearchModal />
+                <SearchModal url={this.props.route.params.url} />
                 <Motion.Consumer>
                     {(progress) => 
                         <div className="bg-element" style={{

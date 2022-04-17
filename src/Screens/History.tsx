@@ -132,7 +132,7 @@ export class History extends React.Component<HistoryProps> {
     }
 
     async onSave() {
-        Toast.toast("Preparing Download");
+        Toast.toast("Exporting Files");
 
         const zip = new JSZip();
         let downloads: Download[] | undefined;

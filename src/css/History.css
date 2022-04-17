@@ -76,3 +76,24 @@
   display: flex;
   justify-content: flex-end;
 }
+.history .title-wrap.playing::before {
+  transform: translateX(-3px);
+  content: "a";
+  grid-column: 1;
+  grid-row: 1;
+  color: transparent;
+  z-index: 1;
+  pointer-events: none;
+  background-image: linear-gradient(to left,rgba(255, 0, 0, 0),rgb(255, 0, 0, 1) 90%);
+}
+.history .title-wrap.playing::after {
+  transform: translateX(-12px);
+  content: "a";
+  color: transparent;
+  position: absolute;
+  right: 0;
+  grid-row: 1;
+  z-index: 1;
+  pointer-events: none;
+  background-image: linear-gradient(to right,rgba(255, 0, 0, 0),rgb(255, 0, 0, 1) 90%);
+}

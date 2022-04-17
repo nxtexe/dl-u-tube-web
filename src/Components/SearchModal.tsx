@@ -11,7 +11,7 @@ import InfoEditor from './InfoEditor';
 import { RawVideoResult, VideoResult } from '../common/types';
 import Dropdown from './Dropdown';
 import moment from 'moment';
-import { fetchImage, formatFromDuration, getFileRaw } from '../common/utils';
+import { fetchImage, formatFromDuration, getFileRaw, isYTURL } from '../common/utils';
 import Downloader, { DownloadProgress } from '../common/downloader';
 import Converter, { ConversionProgress } from '../common/converter';
 import ID3Writer from 'browser-id3-writer';
@@ -19,6 +19,10 @@ import DownloadHistory from '../common/downloadhistory';
 import {v4 as uuid4} from 'uuid';
 import Toast from './Toast';
 import localforage from 'localforage';
+
+interface SearchModalProps {
+    url?: string;
+}
 
 interface SearchModalState {
     result?: VideoResult;
@@ -30,7 +34,7 @@ interface SearchModalState {
     fileType: "mp4" | "mp3";
 }
 
-export class SearchModal extends React.Component<any, SearchModalState> {
+export class SearchModal extends React.Component<SearchModalProps, SearchModalState> {
     private unsavedForage = localforage.createInstance({
         name: process.env.REACT_APP_DB_NAME,
         storeName: 'unsaved'
@@ -45,11 +49,12 @@ export class SearchModal extends React.Component<any, SearchModalState> {
         expand: false,
         undo: false,
         contentLength: 0,
-        url: '',
+        url: this.props.url || '',
         fileType: 'mp3'
     }
 
     async componentDidMount() {
+        if (this.props.url && isYTURL(this.props.url)) this.onPaste(this.props.url);
         Converter.instance.onProgress = (resourceID, progress) => {
             const conversionProgress = new CustomEvent<ConversionProgress>('conversionprogress', {
                 detail: {resourceID, progress}
@@ -65,40 +70,6 @@ export class SearchModal extends React.Component<any, SearchModalState> {
 
             window.dispatchEvent(downloadProgress);
         }
-
-        // const url = 'https://www.youtube.com/watch?v=-TxzW4eklEU';
-        // try {
-        //     const response = await fetch(`/api/video/info?url=${url}`);
-        //     const info = await response.json() as RawVideoResult;
-
-        //     info.thumbnails.sort((a, b) => {
-        //         const diff1 = a.width - a.height;
-        //         const diff2 = b.width - b.height;
-
-        //         return diff1 > diff2 ? -1 : 1;
-        //     });
-
-        //     const [coverArt] = info.thumbnails;
-
-        //     const duration = parseFloat(info.duration);
-
-        //     const videoResult: VideoResult = {
-        //         coverArt: coverArt.url,
-        //         coverArtFile: await fetchImage(coverArt.url),
-        //         title: info.title,
-        //         author: info.author,
-        //         duration: moment.utc(duration).format(formatFromDuration(duration / 1000))
-        //     }
-
-        //     this.setState({
-        //         result: videoResult,
-        //         defaults: videoResult,
-        //         contentLength: parseInt(info.contentLength),
-        //         url: url
-        //     });
-        // } catch(e) {
-        //     console.error(e);
-        // }
     }
 
     async onPaste(url: string) {

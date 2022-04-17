@@ -26,7 +26,7 @@ export function InfoEditor(props: InfoEditorProps) {
         setTitle(props.info?.title || '');
         setAuthor(props.info?.author || '');
         setCoverArt('...');
-        if (props.info?.author) setAuthorList([props.info.author]);
+        if (props.info?.author) setAuthorList([]);
     }, [props.open, props.undo]);
 
     function onTitleChange(e: React.ChangeEvent<HTMLInputElement>) {

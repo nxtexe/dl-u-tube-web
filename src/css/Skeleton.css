@@ -1,0 +1,87 @@
+.skeleton .banner {
+    display: flex;
+    gap: 13px;
+    grid-column: span 4;
+    grid-row: 1;
+    color: var(--secondary-main);
+    position: static;
+    z-index: 1;
+}
+.skeleton .bg-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vh;
+    height: 100vw;
+}
+.settings.skeleton .nav-wrap .fab > * {
+  visibility: hidden !important;
+}
+.settings.skeleton .bg-element {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vh;
+  height: 100vw;
+  /* transform: translate(-15%, 0%) rotate(156deg); */
+}
+.settings.skeleton .banner {
+  display: flex;
+  gap: 13px;
+  grid-column: span 4;
+  grid-row: 1;
+  color: var(--secondary-main);
+  position: static;
+  z-index: 1;
+  color: white;
+}
+.settings.skeleton {
+  overflow: hidden;
+  background-color: var(--secondary-main);
+}
+.history.skeleton .nav-wrap {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+.history.skeleton .nav-wrap .fab .bg {
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  transform: none;
+  border-radius: 0;
+}
+.history.skeleton .nav-wrap .fab {
+  width: 100vw;
+  height: 100vh;
+  margin-bottom: 0;
+  left: 0;
+  position: absolute;
+  transform: none!important;
+  z-index: 9;
+}
+.history.skeleton .nav-wrap .fab button {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.history.skeleton .banner {
+  display: flex;
+  gap: 13px;
+  grid-column: span 4;
+  grid-row: 1;
+  color: var(--secondary-main);
+  position: static;
+  z-index: 1;
+}
+.history.skeleton .nav-wrap .home,
+.history.skeleton .nav-wrap .settings {
+  display: none;
+}

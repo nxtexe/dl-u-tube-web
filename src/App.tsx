@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import {ThemeProvider} from '@mui/material/styles';
 import {darkTheme} from './Components';
-import {Home, Settings, History} from './Screens';
+import {Skeleton} from './Screens';
 import { AnimationConfig, Router, Stack } from 'react-motion-router';
 import { iOS, isPWA } from './common/utils';
 import './css/App.css';
@@ -14,6 +14,10 @@ import localforage from 'localforage';
 import { NotificationPreferences } from './Screens';
 import { Download } from './common/downloadhistory';
 import Downloader from './common/downloader';
+
+const Home = React.lazy(() => import ('./Screens/Home'));
+const History = React.lazy(() => import('./Screens/History'));
+const Settings = React.lazy(() => import('./Screens/Settings'));
 
 let animation: AnimationConfig = {
   type: 'fade',
@@ -77,9 +81,9 @@ function App() {
           disableBrowserRouting: isPWA && iOS(),
           animation: animation
         }}>
-          <Stack.Screen path={'/'} component={Home} />
-          <Stack.Screen path={'/settings'} component={Settings} />
-          <Stack.Screen path={'/history'} component={History} />
+          <Stack.Screen path={'/'} component={Home} fallback={<Skeleton />} />
+          <Stack.Screen path={'/settings'} component={Settings} fallback={<Skeleton />} />
+          <Stack.Screen path={'/history'} component={History} fallback={<Skeleton />} />
         </Router>
         
       </div>
